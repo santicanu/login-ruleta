@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Wheel } from "react-custom-roulette";
 import { Box, Button, Typography } from "@mui/material";
 import "./Ruleta.css";
+import puntero from '../assets/puntero.png'; 
 const backgroundColors = [
   "#ff0000ff", // Kit El Galgo – rojo suave
   "#006affff", // Lapicera – azul brillante
@@ -115,7 +116,8 @@ function Ruleta({ opciones, onResult }) {
                 innerBorderColor="#ffffffff"
                 innerBorderWidth={4}
                 pointerProps={{
-                  src: './puntero.png',
+                  src: puntero,
+                  style: { width: 100, height: 100 },
                 }}
                 onStopSpinning={() => {
                     setMustSpin(false);
