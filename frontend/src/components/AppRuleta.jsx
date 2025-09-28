@@ -1,38 +1,51 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import Registro from "./Registro"; // el form de antes
 import Ruleta from "./Ruleta";
 import PremioModal from "./PremioModal";
+
 function AppRuleta() {
   const [registrado, setRegistrado] = useState(false);
-  const [resultado, setResultado] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [premio, setPremio] = useState(null); 
+  const [premio, setPremio] = useState(null);
+  const [opciones, setOpciones] = useState([]);
 
-  const opciones = [
-    { texto: "Kit El Galgo", probabilidad: 3, max: 5, ocurrencias: 0 },
-    { texto: "Lapicera", probabilidad: 2, max: 2, ocurrencias: 0 },
-    { texto: "Libreta", probabilidad: 5, max: Infinity, ocurrencias: 0 },
-    { texto: "Cuellito", probabilidad: 1, max: 1, ocurrencias: 0 },
-    { texto: "Chaleco", probabilidad: 1, max: 1, ocurrencias: 0 },
-    { texto: "Tabla", probabilidad: 1, max: 1, ocurrencias: 0 },
-    { texto: "Taza", probabilidad: 7, max: Infinity, ocurrencias: 0 },
-    { texto: "Vino", probabilidad: 80, max: Infinity, ocurrencias: 0 },
-    { texto: "Gracias por participar", probabilidad: 70, max: Infinity, ocurrencias: 0 },
-  ];
+  useEffect(() => {
+    if (registrado) {
+      const fetchPrizes = async () => {
+        try {
+          const response = await axios.get("http://192.168.0.12:8000/api/prizes/");
+          const formattedOpciones = response.data.map((prize) => ({
+            texto: prize.name,
+            probabilidad: prize.probability,
+            max: prize.maxOcurrency,
+            ocurrencias: prize.ocurrency,
+          }));
+          setOpciones(formattedOpciones);
+        } catch (error) {
+          console.error("Error fetching prizes:", error);
+        }
+      };
+      fetchPrizes();
+    }
+  }, [registrado]);
 
   const handleResult = (opcionGanadora) => {
     setPremio(opcionGanadora.texto);
     setModalOpen(true);
   };
+
   return (
     <>
       {!registrado ? (
         <Registro onSuccess={() => setRegistrado(true)} />
-      ) : (
+      ) : opciones.length > 0 ? (
         <Ruleta
           opciones={opciones}
           onResult={handleResult}
         />
+      ) : (
+        <p>Cargando premios...</p>
       )}
 
       <PremioModal

@@ -53,7 +53,7 @@ function Registro({ onSuccess }) {
     e.preventDefault();
     console.log(form);
     try {
-       await axios.post("http://192.168.0.12:8000/api/v1/participants", form);
+       await axios.post("http://192.168.0.12:8000/api/participants", form);
       if (onSuccess) onSuccess();
     } catch (err) {
       console.error(err);
