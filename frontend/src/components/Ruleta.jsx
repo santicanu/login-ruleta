@@ -19,25 +19,26 @@ function Ruleta({ opciones, onResult }) {
   const [mustSpin, setMustSpin] = useState(false);
   const [prizeNumber, setPrizeNumber] = useState(0);
 
-  const data = opciones.map(op => ({ option: op.texto }));
+  const data = opciones.map(op => ({ option: op.name }));
 
   const girar = () => {
     if (mustSpin) return;
-
+  
     // lógica simple de probabilidades
-    const disponibles = opciones.filter((op) => op.ocurrencias < op.max);
-    const total = disponibles.reduce((acc, op) => acc + op.probabilidad, 0);
+    const disponibles = opciones.filter((op) => op.ocurrency < op.maxOcurrency);
+    console.log(disponibles);
+    const total = disponibles.reduce((acc, op) => acc + op.probability, 0);
     let rnd = Math.random() * total;
     let elegido = disponibles[0];
     for (let op of disponibles) {
-      if (rnd < op.probabilidad) {
+      if (rnd < op.probability) {
         elegido = op;
         break;
       }
-      rnd -= op.probabilidad;
+      rnd -= op.probability;
     }
-
-    const index = data.findIndex((d) => d.option === elegido.texto);
+  
+    const index = data.findIndex((d) => d.option === elegido.name);
     setPrizeNumber(index);
     setMustSpin(true);
   };

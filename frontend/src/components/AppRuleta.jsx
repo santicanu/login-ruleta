@@ -9,17 +9,18 @@ function AppRuleta() {
   const [modalOpen, setModalOpen] = useState(false);
   const [premio, setPremio] = useState(null);
   const [opciones, setOpciones] = useState([]);
+  const [participante, setParticipante] = useState(null);
 
   useEffect(() => {
-    if (registrado) {
       const fetchPrizes = async () => {
         try {
-          const response = await axios.get("http://192.168.0.12:8000/api/prizes/");
+          const response = await axios.get("http://localhost:8000/api/prizes/");
           const formattedOpciones = response.data.map((prize) => ({
-            texto: prize.name,
-            probabilidad: prize.probability,
-            max: prize.maxOcurrency,
-            ocurrencias: prize.ocurrency,
+            id: prize.id,
+            name: prize.name,
+            probability: prize.probability,
+            maxOcurrency: prize.maxOcurrency,
+            ocurrency: prize.ocurrency,
           }));
           setOpciones(formattedOpciones);
         } catch (error) {
@@ -27,18 +28,19 @@ function AppRuleta() {
         }
       };
       fetchPrizes();
-    }
-  }, [registrado]);
+    
+  }, []);
 
-  const handleResult = (opcionGanadora) => {
-    setPremio(opcionGanadora.texto);
+  const handleResult = async (opcionGanadora) => {
+    await axios.put(`http://localhost:8000/api/participants/${participante}/updatePrize`, opcionGanadora);
+    setPremio(opcionGanadora.name);
     setModalOpen(true);
   };
 
   return (
     <>
       {!registrado ? (
-        <Registro onSuccess={() => setRegistrado(true)} />
+        <Registro onSuccess={() => setRegistrado(true)} setParticipante={setParticipante} />
       ) : opciones.length > 0 ? (
         <Ruleta
           opciones={opciones}
@@ -50,7 +52,6 @@ function AppRuleta() {
 
       <PremioModal
         open={modalOpen}
-        onClose={() => setModalOpen(false)}
         premio={premio}
       />
     </>

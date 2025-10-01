@@ -6,10 +6,11 @@ const Transition = forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-function PremioModal({ open, premio }) {
+function YaParticipoModal({ open, onClose }) {
   return (
     <Dialog
       open={open}
+      onClose={onClose}
       TransitionComponent={Transition}
       keepMounted
       fullWidth
@@ -24,15 +25,10 @@ function PremioModal({ open, premio }) {
       }}
     >
       <DialogTitle sx={{ fontWeight: "bold", color: "#2c5364", fontSize: { xs: 20, sm: 24 } }}>
-        🎉 ¡Felicidades! 🎉
+        🎉 ¡Ya participaste! 🎉
       </DialogTitle>
-      <DialogContent>
-        <Typography sx={{ fontSize: { xs: 16, sm: 18 }, mt: 1, color: "#011627" }}>
-          Ganaste: <strong>{premio}</strong>
-        </Typography>
-      </DialogContent>
     </Dialog>
   );
 }
 
-export default PremioModal;
+export default YaParticipoModal;

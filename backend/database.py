@@ -5,8 +5,8 @@ from sqlalchemy.exc import OperationalError
 import time
 
 # --- Database Configuration ---
-DB_USER = "postgres"
-DB_PASSWORD = "171101"
+DB_USER = "santicanu"
+DB_PASSWORD = "7070"
 DB_HOST = "localhost"
 DB_PORT = "5432"
 DB_NAME = "ruleta_db"

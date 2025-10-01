@@ -13,8 +13,9 @@ import {
   FormLabel,
   FormGroup,
 } from "@mui/material";
+import YaParticipoModal from "./YaParticipoModal";
 
-function Registro({ onSuccess }) {
+function Registro({ onSuccess, setParticipante }) {
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -23,38 +24,53 @@ function Registro({ onSuccess }) {
     areaCode: "",
     phone: "",
     email: "",
-    answer1: "", 
-    answer2: "", 
+    answer1: null, 
+    answer2: null, 
     answer3: "", 
     answer4: [], 
-    prize_won: "un beso"
+    prize_won: ""
   });
+  const [openParticipoModal, setOpenParticipoModal] = useState(false);
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const { name, value } = e.target;
+  let parsedValue = value;
 
-  const handleRadio = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  setForm({ ...form, [name]: parsedValue });
+};
 
-  const handleCheckboxGroup = (e) => {
-    const { value, checked } = e.target;
-    let newArr = [...form.answer4];
-    if (checked) {
-      if (newArr.length < 2) newArr.push(value);
-    } else {
-      newArr = newArr.filter((v) => v !== value);
-    }
-    setForm({ ...form, answer4: newArr });
-  };
+const handleRadio = (e) => {
+  const { name, value } = e.target;
+
+  // Si el valor es "true"/"false", convertir a boolean
+  if (value === "true" || value === "false") {
+    setForm({ ...form, [name]: value === "true" });
+  } else {
+    setForm({ ...form, [name]: value });
+  }
+};
+const handleCheckboxGroup = (e) => {
+  const { value, checked } = e.target;
+  let newArr = [...form.answer4];
+  if (checked) {
+    if (newArr.length < 2) newArr.push(value);
+  } else {
+    newArr = newArr.filter((v) => v !== value);
+  }
+  setForm({ ...form, answer4: newArr });
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(form);
     try {
-       await axios.post("http://192.168.0.12:8000/api/participants", form);
-      if (onSuccess) onSuccess();
+      const res = await axios.post("http://localhost:8000/api/participants", form);
+      if (res.data.success === false && res.data.message === "Email already registered") {
+        setOpenParticipoModal(true);
+        return;
+      } else{
+        onSuccess();
+        setParticipante(res.data.id);
+      }
     } catch (err) {
       console.error(err);
     }
@@ -176,8 +192,8 @@ function Registro({ onSuccess }) {
             onChange={handleRadio}
             row
           >
-            <FormControlLabel value={true} control={<Radio />} label="Sí" />
-            <FormControlLabel value={false} control={<Radio />} label="No" />
+            <FormControlLabel value="true" control={<Radio />} label="Sí" />
+            <FormControlLabel value="false" control={<Radio />} label="No" />
           </RadioGroup>
 
           {/* Answer 2 */}
@@ -190,8 +206,8 @@ function Registro({ onSuccess }) {
             onChange={handleRadio}
             row
           >
-            <FormControlLabel value={true} control={<Radio />} label="Sí" />
-            <FormControlLabel value={false} control={<Radio />} label="No" />
+            <FormControlLabel value="true" control={<Radio />} label="Sí" />
+            <FormControlLabel value="false" control={<Radio />} label="No" />
           </RadioGroup>
 
           {/* Answer 3 */}
@@ -204,17 +220,17 @@ function Registro({ onSuccess }) {
             onChange={handleRadio}
           >
             <FormControlLabel
-              value="everyYear"
+              value="Cada año"
               control={<Radio />}
               label="Cada año"
             />
             <FormControlLabel
-              value="every2Years"
+              value="Cada 2 años"
               control={<Radio />}
               label="Cada 2 años"
             />
             <FormControlLabel
-              value="every5YearsOrMore"
+              value="Cada 5 años o más"
               control={<Radio />}
               label="Cada 5 años o más"
             />
@@ -228,11 +244,11 @@ function Registro({ onSuccess }) {
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={form.answer4.includes("competitivePrice")}
+                  checked={form.answer4.includes("Precio competitivo")}
                   onChange={handleCheckboxGroup}
-                  value="competitivePrice"
+                  value="Precio competitivo"
                   disabled={
-                    !form.answer4.includes("competitivePrice") &&
+                    !form.answer4.includes("Precio competitivo") &&
                     form.answer4.length >= 2
                   }
                 />
@@ -242,11 +258,11 @@ function Registro({ onSuccess }) {
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={form.answer4.includes("productQuality")}
+                  checked={form.answer4.includes("Calidad del producto")}
                   onChange={handleCheckboxGroup}
-                  value="productQuality"
+                  value="Calidad del producto"
                   disabled={
-                    !form.answer4.includes("productQuality") &&
+                    !form.answer4.includes("Calidad del producto") &&
                     form.answer4.length >= 2
                   }
                 />
@@ -256,11 +272,11 @@ function Registro({ onSuccess }) {
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={form.answer4.includes("innovation")}
+                  checked={form.answer4.includes("Innovación / nuevas soluciones")}
                   onChange={handleCheckboxGroup}
-                  value="innovation"
+                  value="Innovación / nuevas soluciones"
                   disabled={
-                    !form.answer4.includes("innovation") &&
+                    !form.answer4.includes("Innovación / nuevas soluciones") &&
                     form.answer4.length >= 2
                   }
                 />
@@ -270,11 +286,11 @@ function Registro({ onSuccess }) {
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={form.answer4.includes("stockAvailable")}
+                  checked={form.answer4.includes("Stock disponible en tienda")}
                   onChange={handleCheckboxGroup}
-                  value="stockAvailable"
+                  value="Stock disponible en tienda"
                   disabled={
-                    !form.answer4.includes("stockAvailable") &&
+                    !form.answer4.includes("Stock disponible en tienda") &&
                     form.answer4.length >= 2
                   }
                 />
@@ -284,11 +300,11 @@ function Registro({ onSuccess }) {
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={form.answer4.includes("recommendedByProfessional")}
+                  checked={form.answer4.includes("Recomendado por un profesional/arquitecto de confianza")}
                   onChange={handleCheckboxGroup}
-                  value="recommendedByProfessional"
+                  value="Recomendado por un profesional/arquitecto de confianza"
                   disabled={
-                    !form.answer4.includes("recommendedByProfessional") &&
+                    !form.answer4.includes("Recomendado por un profesional/arquitecto de confianza") &&
                     form.answer4.length >= 2
                   }
                 />
@@ -314,6 +330,7 @@ function Registro({ onSuccess }) {
           </Button>
         </Box>
       </Paper>
+      <YaParticipoModal open={openParticipoModal} onClose={() => setOpenParticipoModal(false)} />
     </Box>
   );
 }
