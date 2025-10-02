@@ -18,9 +18,16 @@ print("Tables created.")
 app = FastAPI()
 
 # --- CORS Middleware Configuration ---
+# Lista de orígenes permitidos (tu frontend en Vercel y el entorno local)
+origins = [
+    "https://<TU_FRONTEND_URL>.vercel.app",  # Reemplaza con la URL de tu app en Vercel
+    "http://localhost:5173",  # Puerto por defecto de Vite para desarrollo
+    "http://localhost:3000",  # Puerto común para desarrollo de React
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
