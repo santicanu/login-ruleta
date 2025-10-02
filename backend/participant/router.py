@@ -89,3 +89,19 @@ def update_prize(
     db.refresh(prize)
 
     return participant
+
+# 🔹 Eliminar un participante por ID
+@router.delete("/participants/{participant_id}", response_model=dict)
+def delete_participant(participant_id: int, db: Session = Depends(get_db)):
+    participant = participant_repo.get_participant(db, participant_id=participant_id)
+    if not participant:
+        raise HTTPException(status_code=404, detail="Participant not found")
+    
+    participant_repo.delete_participant(db, participant_id)
+    return {"success": True, "message": f"Participant {participant_id} deleted"}
+
+# 🔹 Eliminar todos los participantes
+@router.delete("/participants/", response_model=dict)
+def delete_all_participants(db: Session = Depends(get_db)):
+    participant_repo.delete_all_participants(db)
+    return {"success": True, "message": "All participants deleted"}

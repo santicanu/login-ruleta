@@ -5,7 +5,7 @@ import Ruleta from "./Ruleta";
 import PremioModal from "./PremioModal";
 
 function AppRuleta() {
-  const [registrado, setRegistrado] = useState(false);
+  const [registrado, setRegistrado] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [premio, setPremio] = useState(null);
   const [opciones, setOpciones] = useState([]);

@@ -2,8 +2,7 @@ html, body, #root {
   height: 100%;
   margin: 0;
   width: 100%;
-  background-color: #f9b91733; 
-  /* background-color: #D0C19D; */
+  background-color: #ffe298; /* sin transparencia */
 }
 
 /* @font-face {

@@ -4,8 +4,8 @@ import { Box, Button, Typography } from "@mui/material";
 import "./Ruleta.css";
 import puntero from "../assets/puntero.png";
 import logo from "../assets/Miksa.png";
-import logoDigitActivo from "../assets/IMG_6210.png";
-import "../../index.css";
+import logoDigitActivo from "../assets/digitactivo.png";
+import "../../index.css"; 
 
 const backgroundColors = [
   "#f9b917",
@@ -48,21 +48,21 @@ function Ruleta({ opciones, onResult }) {
   return (
     <Box
       sx={{
-        minHeight: "100vh", // 👈 ocupa toda la pantalla
+        minHeight: "auto",
         display: "flex",
         flexDirection: "column",
-        // justifyContent: "space-between", 
+        // justifyContent: "center", 
         alignItems: "center",
         width: "100%",
         maxWidth: "90vw",
         margin: "0 auto",
         textAlign: "center",
-        mt: 4,
+        mt: 1,
       }}
     >
       {/* Contenido principal */}
       <Box>
-        <Typography variant="h4" sx={{ mt: 7, mb: 5, fontWeight: "bold" }}>
+        <Typography variant="h4" sx={{ mb: 3, fontWeight: "bold" }}>
           ¡Éxitos!
         </Typography>
 
@@ -80,9 +80,9 @@ function Ruleta({ opciones, onResult }) {
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              width: { xs: "320px", sm: "450px", md: "520px", lg: "600px" },
-              maxWidth: "100vw",
-              paddingTop: "100%",
+              width: { xs: 320, sm: 450, md: 520, lg: 600 },
+              aspectRatio: "1 / 1",
+              maxWidth: "100%",
             }}
           >
             <Box
@@ -142,7 +142,7 @@ function Ruleta({ opciones, onResult }) {
           disabled={mustSpin}
           variant="contained"
           sx={{
-            mt: 7,
+            mt: 4,
             bgcolor: "#2c5364",
             "&:hover": { bgcolor: "#203a43" },
             borderRadius: 2,
@@ -163,7 +163,6 @@ function Ruleta({ opciones, onResult }) {
         sx={{
           width: "100%",
           // py: 2,
-          mt: 4,
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
@@ -173,14 +172,14 @@ function Ruleta({ opciones, onResult }) {
         <img
           src={logo}
           alt="Miksa Logo"
-          style={{ mb: 0, maxHeight: "230px", width: "auto" }}
+          style={{ marginTop: "20px", marginBottom: "0", maxHeight: "90px", width: "auto" }}
         />
         <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
           <Typography sx={{ fontSize: "0.875rem"}} >creado por</Typography>
           <img
             src={logoDigitActivo}
             alt="DigitActivo Logo"
-            style={{ ml: 0, maxHeight: "110px", width: "auto" }}
+            style={{ marginLeft: "0px", maxHeight: "110px", width: "auto" }}
           />
         </Box>
         

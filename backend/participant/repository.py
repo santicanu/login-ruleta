@@ -16,3 +16,15 @@ def create_participant(db: Session, participant: schema.ParticipantCreate):
     db.commit()
     db.refresh(db_participant)
     return db_participant
+
+# Eliminar un participante por ID
+def delete_participant(db: Session, participant_id: int):
+    db_participant = db.query(model.Participant).filter(model.Participant.id == participant_id).first()
+    if db_participant:
+        db.delete(db_participant)
+        db.commit()
+
+# Eliminar todos los participantes
+def delete_all_participants(db: Session):
+    db.query(model.Participant).delete()
+    db.commit()
