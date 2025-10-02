@@ -7,7 +7,7 @@ import time
 # --- Database Configuration ---
 DB_USER = "miksa_user"
 DB_PASSWORD = "ruleta"
-DB_HOST = "localhost"
+DB_HOST = "100.79.0.118"
 DB_PORT = "5432"
 DB_NAME = "ruleta_db"
 
