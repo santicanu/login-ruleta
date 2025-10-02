@@ -5,6 +5,7 @@ import "./Ruleta.css";
 import puntero from "../assets/puntero.png";
 import logo from "../assets/Miksa.png";
 import logoDigitActivo from "../assets/IMG_6210.png";
+import "../../index.css";
 
 const backgroundColors = [
   "#f9b917",
@@ -61,7 +62,7 @@ function Ruleta({ opciones, onResult }) {
     >
       {/* Contenido principal */}
       <Box>
-        <Typography variant="h4" sx={{ mt: 7, mb: 5, fontWeight: "bold", fontFamily: "DINPro-Medium" }}>
+        <Typography variant="h4" sx={{ mt: 7, mb: 5, fontWeight: "bold" }}>
           ¡Éxitos!
         </Typography>
 
@@ -114,7 +115,7 @@ function Ruleta({ opciones, onResult }) {
                   radiusLineWidth={0}
                   fontSize={16}
                   fontWeight="700"
-                  fontFamily="DINPro-Medium"
+                  // fontFamily="DINPro"
                   textDistance={57}
                   outerBorderColor="#3a3a3aff"
                   outerBorderWidth={12}
@@ -152,8 +153,8 @@ function Ruleta({ opciones, onResult }) {
           }}
         >
           {mustSpin ? 
-          <Typography variant="body1" sx={{ fontFamily: "DINPro-Medium" }}>Girando...</Typography> : 
-          <Typography variant="body1" sx={{ fontFamily: "DINPro-Medium" }}>Girar</Typography>}
+          <Typography variant="body1" >Girando...</Typography> : 
+          <Typography variant="body1" >Girar</Typography>}
         </Button>
       </Box>
 
@@ -175,7 +176,7 @@ function Ruleta({ opciones, onResult }) {
           style={{ mb: 0, maxHeight: "230px", width: "auto" }}
         />
         <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
-          <Typography sx={{ fontSize: "0.875rem", fontFamily: "DINPro-Medium" }} >creado por</Typography>
+          <Typography sx={{ fontSize: "0.875rem"}} >creado por</Typography>
           <img
             src={logoDigitActivo}
             alt="DigitActivo Logo"

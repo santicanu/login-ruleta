@@ -6,9 +6,14 @@ html, body, #root {
   /* background-color: #D0C19D; */
 }
 
-@font-face {
-  font-family: "DINProMedium";
-  src: url("./assets/DINPro-Medium_13936.ttf") format("opentype");
+/* @font-face {
+  font-family: 'DINPro';
+  src: url('./DINPro.woff2') format('woff2'),
+       url('./DINPro.woff') format('woff');
   font-weight: normal;
   font-style: normal;
 }
+
+body {
+  font-family: 'DINPro', sans-serif;
+} */

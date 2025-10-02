@@ -14,7 +14,7 @@ function AppRuleta() {
   useEffect(() => {
       const fetchPrizes = async () => {
         try {
-          const response = await axios.get("http://localhost:8000/api/prizes/");
+          const response = await axios.get("https://login-ruleta-1.onrender.com/api/prizes/");
           const formattedOpciones = response.data.map((prize) => ({
             id: prize.id,
             name: prize.name,
@@ -32,7 +32,7 @@ function AppRuleta() {
   }, []);
 
   const handleResult = async (opcionGanadora) => {
-    await axios.put(`http://localhost:8000/api/participants/${participante}/updatePrize`, opcionGanadora);
+    await axios.put(`https://login-ruleta-1.onrender.com/api/participants/${participante}/updatePrize`, opcionGanadora);
     setPremio(opcionGanadora.name);
     setModalOpen(true);
   };

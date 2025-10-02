@@ -62,7 +62,7 @@ const handleCheckboxGroup = (e) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:8000/api/participants", form);
+      const res = await axios.post("https://login-ruleta-1.onrender.com/api/participants", form);
       if (res.data.success === false && res.data.message === "Email already registered") {
         setOpenParticipoModal(true);
         return;
