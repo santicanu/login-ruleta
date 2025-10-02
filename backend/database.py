@@ -1,4 +1,3 @@
-# database.py
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -10,31 +9,16 @@ DB_HOST = "dpg-d3f96qer433s73arj5s0-a.render.com"
 DB_PORT = "5432"
 DB_NAME = "ruleta_db_4xm3"
 
-# --- SQLAlchemy connection URL ---
+# Connection URL for your specific application database
 SQLALCHEMY_DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
-# --- Engine & Session setup ---
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
-    pool_pre_ping=True  # mantiene la conexión viva, útil en entornos de nube
-)
+# --- SQLAlchemy setup ---
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
-SessionLocal = sessionmaker(
-    autocommit=False,
-    autoflush=False,
-    bind=engine
-)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# --- Declarative base for models ---
 Base = declarative_base()
 
-# --- Dependency para usar en FastAPI ---
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 # from sqlalchemy import create_engine, text
 # from sqlalchemy.orm import sessionmaker
 # from sqlalchemy.ext.declarative import declarative_base
