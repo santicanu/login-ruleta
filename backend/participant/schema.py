@@ -5,7 +5,6 @@ from typing import List, Optional
 class ParticipantBase(BaseModel):
     firstName: str
     lastName: str
-    dni: str
     age: str
     email: str
     phone: str # The combined phone number
@@ -28,7 +27,6 @@ class Participant(ParticipantBase):
 class ParticipantFrontend(BaseModel):
     firstName: str
     lastName: str
-    dni: str
     age: str
     email: str
     areaCode: str # from frontend

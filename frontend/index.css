@@ -1,0 +1,14 @@
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  width: 100%;
+  background-color: #f9b91733; 
+  /* background-color: #D0C19D; */
+}
+
+@font-face {
+  font-family: "DINProMedium";
+  src: url("./assets/DINPro-Medium_13936.ttf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+}

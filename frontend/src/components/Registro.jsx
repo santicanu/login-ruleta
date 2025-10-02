@@ -19,7 +19,6 @@ function Registro({ onSuccess, setParticipante }) {
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
-    dni: null,
     age: null,
     areaCode: "",
     phone: "",
@@ -124,17 +123,6 @@ const handleCheckboxGroup = (e) => {
             margin="normal"
             variant="outlined"
             value={form.lastName}
-            onChange={handleChange}
-            required
-          />
-          <TextField
-            label="DNI"
-            name="dni"
-            type="number"
-            fullWidth
-            margin="normal"
-            variant="outlined"
-            value={form.dni}
             onChange={handleChange}
             required
           />

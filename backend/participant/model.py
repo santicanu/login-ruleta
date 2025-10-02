@@ -7,7 +7,6 @@ class Participant(Base):
     id = Column(Integer, primary_key=True, index=True)
     firstName = Column(String, index=True)
     lastName = Column(String, index=True)
-    dni = Column(String, unique=True, index=True)
     age = Column(String)
     email = Column(String, unique=True, index=True)
     phone = Column(String)
