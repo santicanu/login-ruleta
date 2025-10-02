@@ -6,10 +6,10 @@ import time
 
 # --- Database Configuration ---
 DB_USER = "miksa_user"
-DB_PASSWORD = "ruleta"
-DB_HOST = "100.79.0.118"
+DB_PASSWORD = "72WbvLTecTC5LYANGnOIjbAvSTZAP8PN"
+DB_HOST = "dpg-d3f96qer433s73arj5s0-a.render.com"
 DB_PORT = "5432"
-DB_NAME = "ruleta_db"
+DB_NAME = "ruleta_db_4xm3"
 
 # Connection URL for the default 'postgres' database
 DEFAULT_DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/postgres"
