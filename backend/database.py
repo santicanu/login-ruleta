@@ -5,7 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 # --- Database Configuration ---
 DB_USER = "miksa_user"
 DB_PASSWORD = "72WbvLTecTC5LYANGnOIjbAvSTZAP8PN"
-DB_HOST = "dpg-d3f96qer433s73arj5s0-a.render.com"
+DB_HOST = "dpg-d3f96qer433s73arj5s0-a"
 DB_PORT = "5432"
 DB_NAME = "ruleta_db_4xm3"
 
