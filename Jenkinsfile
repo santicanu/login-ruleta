@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         TESTING = '1'
-        GITHUB_TOKEN = credentials('githubcicd') // 🔑 Token con permisos de repo
+        GITHUB_TOKEN = credentials('github-token') // 🔑 Token con permisos de repo
         GITHUB_REPO = 'santicanu/login-ruleta'
     }
 
@@ -103,9 +103,6 @@ pipeline {
                         -d '{"commit_title":"Auto merge ${BRANCH_NAME} -> main","merge_method":"merge"}'
                         """
                         
-                        // Disparar build de main
-                        echo "🚀 Disparando build de rama main..."
-                        build job: env.JOB_NAME, parameters: [string(name: 'BRANCH', value: 'main')], wait: false
                     } else {
                         echo "⚠️ No se pudo crear el Pull Request automáticamente."
                     }
