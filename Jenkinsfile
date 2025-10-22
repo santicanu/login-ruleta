@@ -17,9 +17,9 @@ pipeline {
             steps {
                 echo 'Instalando dependencias de backend...'
                 dir('backend') {
-                    bat 'python -m pip install --upgrade pip'
-                    bat 'python -m pip install -r requirements.txt'
-                    bat 'python -m pip install pytest httpx'
+                    sh 'python -m pip install --upgrade pip'
+                    sh 'python -m pip install -r requirements.txt'
+                    sh 'python -m pip install pytest httpx'
                 }
             }
         }
@@ -28,7 +28,7 @@ pipeline {
             steps {
                 echo 'Ejecutando tests de backend...'
                 dir('backend') {
-                    bat 'pytest tests'
+                    sh 'pytest tests'
                 }
             }
         }
@@ -37,7 +37,7 @@ pipeline {
             steps {
                 echo 'Instalando dependencias de frontend...'
                 dir('frontend') {
-                    bat 'npm install'
+                    sh 'npm install'
                 }
             }
         }
@@ -46,7 +46,7 @@ pipeline {
             steps {
                 echo 'Haciendo build de frontend...'
                 dir('frontend') {
-                    bat 'npm run build'
+                    sh 'npm run build'
                 }
             }
         }
