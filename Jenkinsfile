@@ -3,99 +3,109 @@ pipeline {
 
     environment {
         TESTING = '1'
-        GITHUB_TOKEN = credentials('githubcicd') // 🔑 Token personal con permisos de repo
+        GITHUB_TOKEN = credentials('githubcicd') // 🔑 Token con permisos de repo
+        GITHUB_REPO = 'santicanu/login-ruleta'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                echo 'Clonando repositorio...'
+                echo '📦 Clonando repositorio...'
                 checkout scm
                 script {
-                    BRANCH_NAME = env.BRANCH_NAME ?: sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
-                    echo "Branch actual: ${BRANCH_NAME}"
+                    BRANCH_NAME = env.BRANCH_NAME ?: sh(
+                        script: "git rev-parse --abbrev-ref HEAD",
+                        returnStdout: true
+                    ).trim()
+                    echo "🪣 Rama actual: ${BRANCH_NAME}"
                 }
             }
         }
 
         stage('Backend Setup & Tests') {
             steps {
-                echo 'Instalando dependencias y ejecutando tests del backend...'
+                echo '🧪 Ejecutando tests del backend...'
                 dir('backend') {
-                    sh 'python3 -m venv venv'
-                    sh '. venv/bin/activate && pip install --upgrade pip'
-                    sh '. venv/bin/activate && pip install -r requirements.txt pytest httpx'
-                    sh '. venv/bin/activate && pytest tests'
+                    sh '''
+                        python3 -m venv venv
+                        . venv/bin/activate && pip install --upgrade pip
+                        . venv/bin/activate && pip install -r requirements.txt pytest httpx
+                        . venv/bin/activate && pytest tests
+                    '''
                 }
             }
         }
 
         stage('Frontend Setup & Build') {
             steps {
-                echo 'Instalando dependencias y construyendo frontend...'
+                echo '⚙️ Construyendo frontend...'
                 dir('frontend') {
-                    sh 'npm install'
-                    sh 'npm run build'
+                    sh '''
+                        npm install
+                        npm run build
+                    '''
                 }
             }
         }
 
         stage('Prepare Vercel Prebuilt') {
-            when {
-                branch 'main'
-            }
+            when { branch 'main' }
             steps {
-                echo 'Preparando build para deploy prebuilt en Vercel...'
+                echo '📦 Preparando build para Vercel...'
                 dir('frontend') {
-                    sh 'mkdir -p .vercel/output/static'
-                    sh 'cp -r dist/* .vercel/output/static/'
                     sh '''
-                    cat > .vercel/output/config.json <<EOF
-                    {
-                        "version": 3,
-                        "builds": [],
-                        "routes": [
-                            { "handle": "filesystem" },
-                            { "src": "/.*", "dest": "/index.html" }
-                        ]
-                    }
-                    EOF
+                        mkdir -p .vercel/output/static
+                        cp -r dist/* .vercel/output/static/
+                        cat > .vercel/output/config.json <<EOF
+                        {
+                            "version": 3,
+                            "builds": [],
+                            "routes": [
+                                { "handle": "filesystem" },
+                                { "src": "/.*", "dest": "/index.html" }
+                            ]
+                        }
+                        EOF
                     '''
                 }
             }
         }
 
         stage('Merge to Main if Tests Passed') {
-            when {
-                expression { return BRANCH_NAME != 'main' }
-            }
+            when { expression { return BRANCH_NAME != 'main' } }
             steps {
-                echo "Mergeando rama ${BRANCH_NAME} a main..."
+                echo "🔀 Mergeando rama ${BRANCH_NAME} a main..."
                 script {
-                    // Crea un Pull Request y lo mergea automáticamente
+                    // Crear Pull Request
                     def prResponse = sh(
                         script: """
-                        curl -s -X POST -H "Authorization: token ${GITHUB_TOKEN}" \
+                        curl -s -X POST \
+                        -H "Authorization: token ${GITHUB_TOKEN}" \
                         -H "Accept: application/vnd.github+json" \
-                        https://api.github.com/repos/santicanu/login-ruleta/pulls \
+                        https://api.github.com/repos/${GITHUB_REPO}/pulls \
                         -d '{"title":"Auto Merge ${BRANCH_NAME}","head":"${BRANCH_NAME}","base":"main"}'
                         """,
                         returnStdout: true
                     ).trim()
-                    
+
                     def prNumber = sh(
-                        script: "echo '${prResponse}' | grep -o '\"number\":[0-9]*' | head -1 | cut -d ':' -f2",
+                        script: "echo '${prResponse}' | grep -o '\"number\":[0-9]*' | cut -d ':' -f2 | head -1",
                         returnStdout: true
                     ).trim()
 
                     if (prNumber) {
-                        echo "Pull Request creado #${prNumber}, intentando merge..."
+                        echo "✅ Pull Request creado #${prNumber}, mergeando..."
                         sh """
-                        curl -s -X PUT -H "Authorization: token ${GITHUB_TOKEN}" \
+                        curl -s -X PUT \
+                        -H "Authorization: token ${GITHUB_TOKEN}" \
                         -H "Accept: application/vnd.github+json" \
-                        https://api.github.com/repos/santicanu/login-ruleta/pulls/${prNumber}/merge \
+                        https://api.github.com/repos/${GITHUB_REPO}/pulls/${prNumber}/merge \
                         -d '{"commit_title":"Auto merge ${BRANCH_NAME} -> main","merge_method":"merge"}'
                         """
+                        
+                        // Disparar build de main
+                        echo "🚀 Disparando build de rama main..."
+                        build job: env.JOB_NAME, parameters: [string(name: 'BRANCH', value: 'main')], wait: false
                     } else {
                         echo "⚠️ No se pudo crear el Pull Request automáticamente."
                     }
@@ -104,26 +114,18 @@ pipeline {
         }
 
         stage('Deploy Frontend via Vercel Webhook') {
-            when {
-                branch 'main'
-            }
+            when { branch 'main' }
             steps {
-                echo 'Desplegando frontend prebuilt en Vercel mediante webhook...'
-                dir('frontend') {
-                    sh '''
-                    curl -X POST https://api.vercel.com/v1/integrations/deploy/prj_QCdQVaYVgP8w3lRuJj2heRHhvyT7/YbUnx27o4N
-                    '''
-                }
+                echo '🚀 Desplegando en Vercel...'
+                sh '''
+                curl -X POST https://api.vercel.com/v1/integrations/deploy/prj_QCdQVaYVgP8w3lRuJj2heRHhvyT7/YbUnx27o4N
+                '''
             }
         }
     }
 
     post {
-        success {
-            echo 'Pipeline completado exitosamente ✅'
-        }
-        failure {
-            echo 'Pipeline falló ❌'
-        }
+        success { echo '✅ Pipeline completado exitosamente.' }
+        failure { echo '❌ Pipeline falló.' }
     }
 }
