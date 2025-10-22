@@ -72,39 +72,60 @@ pipeline {
         }
 
         stage('Merge to Main if Tests Passed') {
-            when { expression { return BRANCH_NAME != 'main' } }
+            when {
+                expression { return BRANCH_NAME != 'main' }
+            }
             steps {
-                echo "🔀 Mergeando rama ${BRANCH_NAME} a main..."
                 script {
-                    // Crear Pull Request
-                    def prResponse = sh(
+                    echo "Intentando mergear rama ${BRANCH_NAME} a main..."
+
+                    // Buscar PR abierto desde la rama actual
+                    def prList = sh(
                         script: """
-                        curl -s -X POST \
-                        -H "Authorization: token ${GITHUB_TOKEN}" \
-                        -H "Accept: application/vnd.github+json" \
-                        https://api.github.com/repos/${GITHUB_REPO}/pulls \
-                        -d '{"title":"Auto Merge ${BRANCH_NAME}","head":"${BRANCH_NAME}","base":"main"}'
+                        curl -s -H "Authorization: token ${GITHUB_TOKEN}" \
+                            -H "Accept: application/vnd.github+json" \
+                            https://api.github.com/repos/santicanu/login-ruleta/pulls?head=santicanu:${BRANCH_NAME}&base=main
                         """,
                         returnStdout: true
                     ).trim()
 
                     def prNumber = sh(
-                        script: "echo '${prResponse}' | grep -o '\"number\":[0-9]*' | cut -d ':' -f2 | head -1",
+                        script: "echo '${prList}' | grep -o '\"number\":[0-9]*' | head -1 | cut -d ':' -f2",
                         returnStdout: true
                     ).trim()
 
-                    if (prNumber) {
-                        echo "✅ Pull Request creado #${prNumber}, mergeando..."
-                        sh """
-                        curl -s -X PUT \
-                        -H "Authorization: token ${GITHUB_TOKEN}" \
-                        -H "Accept: application/vnd.github+json" \
-                        https://api.github.com/repos/${GITHUB_REPO}/pulls/${prNumber}/merge \
-                        -d '{"commit_title":"Auto merge ${BRANCH_NAME} -> main","merge_method":"merge"}'
-                        """
+                    if (!prNumber) {
+                        // Crear PR solo si no existe
+                        def prResponse = sh(
+                            script: """
+                            curl -s -X POST -H "Authorization: token ${GITHUB_TOKEN}" \
+                                -H "Accept: application/vnd.github+json" \
+                                https://api.github.com/repos/santicanu/login-ruleta/pulls \
+                                -d '{"title":"Auto Merge ${BRANCH_NAME}","head":"${BRANCH_NAME}","base":"main"}'
+                            """,
+                            returnStdout: true
+                        ).trim()
                         
+                        prNumber = sh(
+                            script: "echo '${prResponse}' | grep -o '\"number\":[0-9]*' | head -1 | cut -d ':' -f2",
+                            returnStdout: true
+                        ).trim()
+                    }
+
+                    if (prNumber) {
+                        echo "Pull Request #${prNumber} encontrado/creado. Haciendo merge..."
+                        def mergeResponse = sh(
+                            script: """
+                            curl -s -X PUT -H "Authorization: token ${GITHUB_TOKEN}" \
+                                -H "Accept: application/vnd.github+json" \
+                                https://api.github.com/repos/santicanu/login-ruleta/pulls/${prNumber}/merge \
+                                -d '{"commit_title":"Auto merge ${BRANCH_NAME} -> main","merge_method":"merge"}'
+                            """,
+                            returnStdout: true
+                        ).trim()
+                        echo "Resultado del merge: ${mergeResponse}"
                     } else {
-                        echo "⚠️ No se pudo crear el Pull Request automáticamente."
+                        echo "⚠️ No se pudo crear ni encontrar el Pull Request."
                     }
                 }
             }
