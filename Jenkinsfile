@@ -13,15 +13,11 @@ pipeline {
             }
         }
 
-        stage('Backend Setup') {
-            steps {
-                echo 'Instalando dependencias de backend...'
-                dir('backend') {
-                    sh 'python -m pip install --upgrade pip'
-                    sh 'python -m pip install -r requirements.txt'
-                    sh 'python -m pip install pytest httpx'
-                }
-            }
+        dir('backend') {
+            sh 'python3 -m venv venv'
+            sh '. venv/bin/activate && pip install --upgrade pip'
+            sh '. venv/bin/activate && pip install -r requirements.txt pytest httpx'
+            sh '. venv/bin/activate && pytest tests'
         }
 
         stage('Backend Tests') {
