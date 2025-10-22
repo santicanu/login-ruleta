@@ -52,18 +52,12 @@ pipeline {
             }
         }
 
-        stage('Deploy Frontend to Vercel') {
+        stage('Deploy Frontend via Vercel Webhook') {
             steps {
-                echo 'Desplegando frontend en Vercel...'
-                dir('frontend') {
-                withCredentials([string(credentialsId: 'vercel-token', variable: 'VERCEL_TOKEN')]) {
-                    sh '''
-                    vercel pull --yes --environment=production --token=$VERCEL_TOKEN
-                    vercel build --prod --token=$VERCEL_TOKEN
-                    vercel deploy --prod --prebuilt --token=$VERCEL_TOKEN
-                    '''
-                }
-                }
+                echo 'Desplegando frontend en Vercel mediante webhook...'
+                sh '''
+                curl -X POST https://api.vercel.com/v1/integrations/deploy/prj_QCdQVaYVgP8w3lRuJj2heRHhvyT7/YbUnx27o4N
+                '''
             }
         }
     }
