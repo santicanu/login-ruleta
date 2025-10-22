@@ -72,66 +72,47 @@ pipeline {
         }
 
         stage('Merge to Main if Tests Passed') {
-            when {
-                expression { return BRANCH_NAME != 'main' }
-            }
+            when { expression { BRANCH_NAME != 'main' } }
             steps {
                 script {
                     echo "Intentando mergear rama ${BRANCH_NAME} a main..."
+                    env.TOKEN = "${GITHUB_TOKEN}"
 
-                    env.TOKEN = "${GITHUB_TOKEN}"  // asigna el token a variable de entorno
-
-                    // Buscar PR abierto desde la rama actual
+                    // Buscar PR existente
                     def prList = sh(
-                        script: '''
-                        curl -s -H "Authorization: token $TOKEN" \
+                        script: """
+                        curl -s -H "Authorization: token \$TOKEN" \
                             -H "Accept: application/vnd.github+json" \
                             "https://api.github.com/repos/santicanu/login-ruleta/pulls?head=santicanu:${BRANCH_NAME}&base=main"
-                        ''',
+                        """,
                         returnStdout: true
                     ).trim()
 
+                    // Extraer número del PR
                     def prNumber = sh(
                         script: "echo '${prList}' | grep -o '\"number\":[0-9]*' | head -1 | cut -d ':' -f2",
                         returnStdout: true
                     ).trim()
 
-                    if (!prNumber) {
-                        // Crear PR solo si no existe
-                        def prResponse = sh(
-                            script: '''
-                            curl -s -X POST -H "Authorization: token $TOKEN" \
-                                -H "Accept: application/vnd.github+json" \
-                                -d '{"title":"Auto Merge ${BRANCH_NAME}","head":"${BRANCH_NAME}","base":"main"}' \
-                                https://api.github.com/repos/santicanu/login-ruleta/pulls
-                            ''',
-                            returnStdout: true
-                        ).trim()
-                        
-                        prNumber = sh(
-                            script: "echo '${prResponse}' | grep -o '\"number\":[0-9]*' | head -1 | cut -d ':' -f2",
-                            returnStdout: true
-                        ).trim()
-                    }
-
                     if (prNumber) {
-                        echo "Pull Request #${prNumber} encontrado/creado. Haciendo merge..."
+                        echo "Pull Request #${prNumber} encontrado. Haciendo merge..."
                         def mergeResponse = sh(
-                            script: '''
-                            curl -s -X PUT -H "Authorization: token $TOKEN" \
+                            script: """
+                            curl -s -X PUT -H "Authorization: token \$TOKEN" \
                                 -H "Accept: application/vnd.github+json" \
                                 -d '{"commit_title":"Auto merge ${BRANCH_NAME} -> main","merge_method":"merge"}' \
                                 https://api.github.com/repos/santicanu/login-ruleta/pulls/${prNumber}/merge
-                            ''',
+                            """,
                             returnStdout: true
                         ).trim()
                         echo "Resultado del merge: ${mergeResponse}"
                     } else {
-                        echo "⚠️ No se pudo crear ni encontrar el Pull Request."
+                        echo "⚠️ No se encontró PR abierto, no se puede mergear automáticamente."
                     }
                 }
             }
         }
+
 
         stage('Deploy Frontend via Vercel Webhook') {
             when { branch 'main' }
