@@ -1,8 +1,14 @@
 FROM jenkins/jenkins:lts
 
 USER root
-RUN apt-get update && \
-    apt-get install -y python3 python3-pip nodejs npm && \
-    ln -s /usr/bin/python3 /usr/bin/python
+
+# Instalar Python, pip, venv, Node y npm
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-venv \
+    python3-pip \
+    nodejs \
+    npm \
+ && rm -rf /var/lib/apt/lists/*
 
 USER jenkins
