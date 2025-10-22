@@ -81,27 +81,27 @@ pipeline {
                     // Buscar PR existente
                     def prList = sh(
                         script: """
-                        curl -s -H "Authorization: token \$TOKEN" \
-                            -H "Accept: application/vnd.github+json" \
-                            "https://api.github.com/repos/santicanu/login-ruleta/pulls?head=santicanu:${BRANCH_NAME}&base=main"
+                            curl -s -H "Authorization: token \$TOKEN" \
+                                -H "Accept: application/vnd.github+json" \
+                                "https://api.github.com/repos/santicanu/login-ruleta/pulls?head=santicanu:${BRANCH_NAME}&base=main"
                         """,
                         returnStdout: true
                     ).trim()
 
-                    // Extraer número del PR
+                    // Extraer número del PR usando jq
                     def prNumber = sh(
-                        script: "echo '${prList}' | grep -o '\"number\":[0-9]*' | head -1 | cut -d ':' -f2",
+                        script: "echo '${prList}' | jq '.[0].number' || echo ''",
                         returnStdout: true
                     ).trim()
 
-                    if (prNumber) {
+                    if (prNumber && prNumber != "null") {
                         echo "Pull Request #${prNumber} encontrado. Haciendo merge..."
                         def mergeResponse = sh(
                             script: """
-                            curl -s -X PUT -H "Authorization: token \$TOKEN" \
-                                -H "Accept: application/vnd.github+json" \
-                                -d '{"commit_title":"Auto merge ${BRANCH_NAME} -> main","merge_method":"merge"}' \
-                                https://api.github.com/repos/santicanu/login-ruleta/pulls/${prNumber}/merge
+                                curl -s -X PUT -H "Authorization: token \$TOKEN" \
+                                    -H "Accept: application/vnd.github+json" \
+                                    -d '{"commit_title":"Auto merge ${BRANCH_NAME} -> main","merge_method":"merge"}' \
+                                    https://api.github.com/repos/santicanu/login-ruleta/pulls/${prNumber}/merge
                             """,
                             returnStdout: true
                         ).trim()
