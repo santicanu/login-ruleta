@@ -78,7 +78,7 @@ pipeline {
                     echo "Intentando mergear rama ${BRANCH_NAME} a main..."
                     env.TOKEN = "${GITHUB_TOKEN}"
 
-                    // Buscar PR existente
+                    // Obtener PR
                     def prList = sh(
                         script: """
                             curl -s -H "Authorization: token \$TOKEN" \
@@ -88,13 +88,13 @@ pipeline {
                         returnStdout: true
                     ).trim()
 
-                    // Extraer número del PR usando jq
+                    // Extraer número del PR sin jq
                     def prNumber = sh(
-                        script: "echo '${prList}' | jq '.[0].number' || echo ''",
+                        script: "echo '${prList}' | grep -m1 '\"number\"' | sed 's/[^0-9]*\\([0-9]*\\).*/\\1/'",
                         returnStdout: true
                     ).trim()
 
-                    if (prNumber && prNumber != "null") {
+                    if (prNumber) {
                         echo "Pull Request #${prNumber} encontrado. Haciendo merge..."
                         def mergeResponse = sh(
                             script: """
