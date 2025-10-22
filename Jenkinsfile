@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         TESTING = '1'
+        GITHUB_TOKEN = credentials('githubcicd') // 🔑 Token personal con permisos de repo
     }
 
     stages {
@@ -10,26 +11,21 @@ pipeline {
             steps {
                 echo 'Clonando repositorio...'
                 checkout scm
+                script {
+                    BRANCH_NAME = env.BRANCH_NAME ?: sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
+                    echo "Branch actual: ${BRANCH_NAME}"
+                }
             }
         }
 
-        stage('Backend Setup') {
+        stage('Backend Setup & Tests') {
             steps {
-                echo 'Instalando dependencias de backend...'
+                echo 'Instalando dependencias y ejecutando tests del backend...'
                 dir('backend') {
                     sh 'python3 -m venv venv'
                     sh '. venv/bin/activate && pip install --upgrade pip'
                     sh '. venv/bin/activate && pip install -r requirements.txt pytest httpx'
                     sh '. venv/bin/activate && pytest tests'
-                }
-            }
-        }
-
-        stage('Backend Tests') {
-            steps {
-                echo 'Ejecutando tests de backend...'
-                dir('backend') {
-                    sh '. venv/bin/activate && pytest tests'   
                 }
             }
         }
@@ -45,14 +41,14 @@ pipeline {
         }
 
         stage('Prepare Vercel Prebuilt') {
+            when {
+                branch 'main'
+            }
             steps {
                 echo 'Preparando build para deploy prebuilt en Vercel...'
                 dir('frontend') {
-                    // Crear directorio .vercel/output si no existe
                     sh 'mkdir -p .vercel/output/static'
-                    // Copiar los archivos de dist al directorio que Vercel espera
                     sh 'cp -r dist/* .vercel/output/static/'
-                    // Crear un archivo de configuración que Vercel requiere
                     sh '''
                     cat > .vercel/output/config.json <<EOF
                     {
@@ -69,7 +65,48 @@ pipeline {
             }
         }
 
+        stage('Merge to Main if Tests Passed') {
+            when {
+                expression { return BRANCH_NAME != 'main' }
+            }
+            steps {
+                echo "Mergeando rama ${BRANCH_NAME} a main..."
+                script {
+                    // Crea un Pull Request y lo mergea automáticamente
+                    def prResponse = sh(
+                        script: """
+                        curl -s -X POST -H "Authorization: token ${GITHUB_TOKEN}" \
+                        -H "Accept: application/vnd.github+json" \
+                        https://api.github.com/repos/santicanu/login-ruleta/pulls \
+                        -d '{"title":"Auto Merge ${BRANCH_NAME}","head":"${BRANCH_NAME}","base":"main"}'
+                        """,
+                        returnStdout: true
+                    ).trim()
+                    
+                    def prNumber = sh(
+                        script: "echo '${prResponse}' | grep -o '\"number\":[0-9]*' | head -1 | cut -d ':' -f2",
+                        returnStdout: true
+                    ).trim()
+
+                    if (prNumber) {
+                        echo "Pull Request creado #${prNumber}, intentando merge..."
+                        sh """
+                        curl -s -X PUT -H "Authorization: token ${GITHUB_TOKEN}" \
+                        -H "Accept: application/vnd.github+json" \
+                        https://api.github.com/repos/santicanu/login-ruleta/pulls/${prNumber}/merge \
+                        -d '{"commit_title":"Auto merge ${BRANCH_NAME} -> main","merge_method":"merge"}'
+                        """
+                    } else {
+                        echo "⚠️ No se pudo crear el Pull Request automáticamente."
+                    }
+                }
+            }
+        }
+
         stage('Deploy Frontend via Vercel Webhook') {
+            when {
+                branch 'main'
+            }
             steps {
                 echo 'Desplegando frontend prebuilt en Vercel mediante webhook...'
                 dir('frontend') {
