@@ -32,7 +32,7 @@ app.include_router(prize_router, prefix="/api", tags=["prizes"])
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to the Roulette API - prueba CI/CD 4"}
+    return {"message": "Welcome to the Roulette API - prueba CI/CD 5"}
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
