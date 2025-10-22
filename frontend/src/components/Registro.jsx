@@ -102,7 +102,7 @@ const handleCheckboxGroup = (e) => {
           gutterBottom
           sx={{ fontWeight: "bold", color: "#2c5364" }}
         >
-          PRUEBA JENKINS
+          Registro de Participante
         </Typography>
 
         <Box component="form" onSubmit={handleSubmit}>
