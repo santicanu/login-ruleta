@@ -29,7 +29,8 @@ pipeline {
             steps {
                 echo 'Ejecutando tests de backend...'
                 dir('backend') {
-                    sh 'pytest tests'
+                    sh '. venv/bin/activate'
+                    sh 'pytest tests'   
                 }
             }
         }
