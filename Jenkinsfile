@@ -34,30 +34,49 @@ pipeline {
             }
         }
 
-        stage('Frontend Setup') {
+        stage('Frontend Setup & Build') {
             steps {
-                echo 'Instalando dependencias de frontend...'
+                echo 'Instalando dependencias y construyendo frontend...'
                 dir('frontend') {
                     sh 'npm install'
+                    sh 'npm run build'
                 }
             }
         }
 
-        stage('Frontend Build') {
+        stage('Prepare Vercel Prebuilt') {
             steps {
-                echo 'Haciendo build de frontend...'
+                echo 'Preparando build para deploy prebuilt en Vercel...'
                 dir('frontend') {
-                    sh 'npm run build'
+                    // Crear directorio .vercel/output si no existe
+                    sh 'mkdir -p .vercel/output/static'
+                    // Copiar los archivos de dist al directorio que Vercel espera
+                    sh 'cp -r dist/* .vercel/output/static/'
+                    // Crear un archivo de configuración que Vercel requiere
+                    sh '''
+                    cat > .vercel/output/config.json <<EOF
+                    {
+                        "version": 3,
+                        "builds": [],
+                        "routes": [
+                            { "handle": "filesystem" },
+                            { "src": "/.*", "dest": "/index.html" }
+                        ]
+                    }
+                    EOF
+                    '''
                 }
             }
         }
 
         stage('Deploy Frontend via Vercel Webhook') {
             steps {
-                echo 'Desplegando frontend en Vercel mediante webhook...'
-                sh '''
-                curl -X POST https://api.vercel.com/v1/integrations/deploy/prj_QCdQVaYVgP8w3lRuJj2heRHhvyT7/YbUnx27o4N
-                '''
+                echo 'Desplegando frontend prebuilt en Vercel mediante webhook...'
+                dir('frontend') {
+                    sh '''
+                    curl -X POST https://api.vercel.com/v1/integrations/deploy/prj_QCdQVaYVgP8w3lRuJj2heRHhvyT7/YbUnx27o4N
+                    '''
+                }
             }
         }
     }
