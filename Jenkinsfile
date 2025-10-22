@@ -51,6 +51,17 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy Frontend to Vercel') {
+            steps {
+                echo 'Desplegando frontend en Vercel...'
+                dir('frontend') {
+                withCredentials([string(credentialsId: 'vercel-token', variable: 'VERCEL_TOKEN')]) {
+                    sh 'vercel --prod --token=$VERCEL_TOKEN --yes'
+                }
+                }
+            }
+        }
     }
 
     post {
