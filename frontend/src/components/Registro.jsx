@@ -172,7 +172,7 @@ const handleCheckboxGroup = (e) => {
 
           {/* Answer 1 */}
           <Typography sx={{ fontSize: '1.2rem', mt: 2 }}>
-            ¿Sabías sobre las pinturas MIKSA antes de este evento?
+            ¿Conocías las pinturas Miksa antes de este evento?
           </Typography>
           <RadioGroup
             name="answer1"
@@ -186,7 +186,7 @@ const handleCheckboxGroup = (e) => {
 
           {/* Answer 2 */}
           <Typography sx={{ fontSize: '1.2rem', mt: 2 }}>
-            ¿Alguna vez has comprado/utilizado productos Miksa?
+            ¿Alguna vez compraste o utilizaste productos Miksa?
           </Typography>
           <RadioGroup
             name="answer2"
@@ -200,7 +200,7 @@ const handleCheckboxGroup = (e) => {
 
           {/* Answer 3 */}
           <Typography sx={{ fontSize: '1.2rem', mt: 2 }}>
-            ¿Con qué frecuencia sueles comprar este tipo de producto?
+            ¿Con qué frecuencia solés comprar este tipo de producto?
           </Typography>
           <RadioGroup
             name="answer3"
@@ -226,7 +226,7 @@ const handleCheckboxGroup = (e) => {
 
           {/* Answer 4 */}
           <Typography sx={{ fontSize: '1.2rem', mt: 2 }}>
-            ¿Qué valoras más al elegir una marca como Miksa? (Elige hasta 2)
+            ¿Qué valorás más al elegir una marca como Miksa? (Podés elegir hasta 2 opciones)
           </Typography>
           <FormGroup>
             <FormControlLabel

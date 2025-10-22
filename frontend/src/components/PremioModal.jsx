@@ -23,12 +23,20 @@ function PremioModal({ open, premio }) {
         },
       }}
     >
-      <DialogTitle sx={{ fontWeight: "bold", color: "#2c5364", fontSize: { xs: 20, sm: 24 } }}>
-        🎉 ¡Felicidades! 🎉
+      <DialogTitle
+        sx={{ fontWeight: "bold", color: "#2c5364", fontSize: { xs: 20, sm: 24 } }}
+      >
+        {premio === "¡Gracias por jugar!" ? "¡Estuvo cerca! 🥲" : "🎉 ¡Felicidades! 🎉"}
       </DialogTitle>
       <DialogContent>
         <Typography sx={{ fontSize: { xs: 16, sm: 18 }, mt: 1, color: "#011627" }}>
-          Ganaste: <strong>{premio}</strong>
+          {premio === "¡Gracias por jugar!" ? (
+            "Gracias por jugar con Miksa!"
+          ) : (
+            <>
+              Ganaste: <strong>{premio}</strong>
+            </>
+          )}
         </Typography>
       </DialogContent>
     </Dialog>

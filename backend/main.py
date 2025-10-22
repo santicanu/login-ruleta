@@ -10,10 +10,12 @@ from database import engine, Base
 from participant import model as participant_model
 from prizes import model as prize_model
 
-# Create the database tables if they don't exist
-print("Creating database tables if they don't exist...")
-Base.metadata.create_all(bind=engine)
-print("Tables created.")
+TESTING = os.environ.get("TESTING", "0") == "1"
+
+if not TESTING:
+    print("Creating database tables if they don't exist...")
+    Base.metadata.create_all(bind=engine)
+    print("Tables created.")
 
 app = FastAPI()
 
@@ -30,7 +32,7 @@ app.include_router(prize_router, prefix="/api", tags=["prizes"])
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to the Roulette API"}
+    return {"message": "Welcome to the Roulette API - prueba CI/CD"}
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
