@@ -102,7 +102,7 @@ const handleCheckboxGroup = (e) => {
           gutterBottom
           sx={{ fontWeight: "bold", color: "#2c5364" }}
         >
-          prueba titulo
+          prueba titulo 1
         </Typography>
 
         <Box component="form" onSubmit={handleSubmit}>
