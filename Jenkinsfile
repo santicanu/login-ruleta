@@ -78,41 +78,61 @@ pipeline {
                     echo "Intentando mergear rama ${BRANCH_NAME} a main..."
                     env.TOKEN = "${GITHUB_TOKEN}"
 
-                    // Obtener PR
+                    // 1️⃣ Buscar PR abierto
                     def prList = sh(
                         script: """
                             curl -s -H "Authorization: token \$TOKEN" \
                                 -H "Accept: application/vnd.github+json" \
-                                "https://api.github.com/repos/santicanu/login-ruleta/pulls?head=santicanu:${BRANCH_NAME}&base=main"
+                                "https://api.github.com/repos/${GITHUB_REPO}/pulls?head=santicanu:${BRANCH_NAME}&base=main"
                         """,
                         returnStdout: true
                     ).trim()
 
-                    // Extraer número del PR sin jq
                     def prNumber = sh(
                         script: "echo '${prList}' | grep -m1 '\"number\"' | sed 's/[^0-9]*\\([0-9]*\\).*/\\1/'",
                         returnStdout: true
                     ).trim()
 
+                    // 2️⃣ Si no existe, crear PR
+                    if (!prNumber) {
+                        echo "⚠️ No se encontró PR abierto. Creando uno..."
+                        def createPR = sh(
+                            script: """
+                                curl -s -X POST -H "Authorization: token \$TOKEN" \
+                                    -H "Accept: application/vnd.github+json" \
+                                    -d '{ "title": "Auto Merge ${BRANCH_NAME}", "head": "${BRANCH_NAME}", "base": "main" }' \
+                                    "https://api.github.com/repos/${GITHUB_REPO}/pulls"
+                            """,
+                            returnStdout: true
+                        ).trim()
+
+                        // Extraer número del PR recién creado
+                        prNumber = sh(
+                            script: "echo '${createPR}' | grep -m1 '\"number\"' | sed 's/[^0-9]*\\([0-9]*\\).*/\\1/'",
+                            returnStdout: true
+                        ).trim()
+                        echo "Pull Request #${prNumber} creado."
+                    }
+
+                    // 3️⃣ Mergear PR
                     if (prNumber) {
-                        echo "Pull Request #${prNumber} encontrado. Haciendo merge..."
+                        echo "Haciendo merge del PR #${prNumber}..."
                         def mergeResponse = sh(
                             script: """
                                 curl -s -X PUT -H "Authorization: token \$TOKEN" \
                                     -H "Accept: application/vnd.github+json" \
                                     -d '{"commit_title":"Auto merge ${BRANCH_NAME} -> main","merge_method":"merge"}' \
-                                    https://api.github.com/repos/santicanu/login-ruleta/pulls/${prNumber}/merge
+                                    "https://api.github.com/repos/${GITHUB_REPO}/pulls/${prNumber}/merge"
                             """,
                             returnStdout: true
                         ).trim()
                         echo "Resultado del merge: ${mergeResponse}"
                     } else {
-                        echo "⚠️ No se encontró PR abierto, no se puede mergear automáticamente."
+                        echo "❌ No se pudo crear ni mergear PR."
                     }
                 }
             }
         }
-
 
         stage('Deploy Frontend via Vercel Webhook') {
             when { branch 'main' }
